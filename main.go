@@ -24,7 +24,8 @@ func newRouter() *mux.Router {
 	// Attach handlers
     fileServer := http.FileServer(http.Dir("./static"))
     r.Handle("/", fileServer)
-	r.HandleFunc("/paste", pasteHandler).Methods("GET")
+	r.HandleFunc("/paste", pasteHandler).Methods("POST")
+	r.HandleFunc("/paste/", pasteHandler).Methods("POST")
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
 
 	return r
@@ -73,7 +74,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
         fmt.Fprintf(w, "ParseForm() err: %v", err)
         return
     }
+    fmt.Printf("Got %s", r.Body)
     fmt.Fprintf(w, "POST request successful\n")
-    paste := r.FormValue("paste")
+    paste := r.FormValue("paste-area")
     fmt.Fprintf(w, "paste = %s\n", paste)
 }
