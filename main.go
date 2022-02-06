@@ -19,7 +19,7 @@ const (
 	port    string = ":8080"
 )
 
-var CHIPKUS = map[string]string{}
+var Chipkus = map[string]string{}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -83,7 +83,7 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Error while fetching vars")
 		return
 	}
-	if x, found := CHIPKUS[id]; found {
+	if x, found := Chipkus[id]; found {
 		fmt.Fprintf(w, "%s", x)
 	} else {
 		fmt.Fprintf(w, "Invalid id (%s) provided :(", id)
@@ -102,7 +102,7 @@ func RandStringBytes(n int) string {
 
 func store(v string) string {
 	hash_val := RandStringBytes(6)
-	CHIPKUS[hash_val] = v
+	Chipkus[hash_val] = v
 	return hash_val
 }
 

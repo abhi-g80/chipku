@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestHandler(t *testing.T) {
+func TestDefaultHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "", nil)
 	// In case there is an error in forming the request, we fail and stop the test
 	if err != nil {
@@ -26,10 +26,17 @@ func TestHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "chipku v0.0.1"
+	expected := "chipku v0.0.2"
 	actual := recorder.Body.String()
 	if string(actual) != string(expected) {
 		t.Errorf("handler returned unexpected body: got %v want %v", actual, expected)
 	}
 }
 
+func TestRandStringBytes(t *testing.T) {
+    var expected int = 5
+    actual := RandStringBytes(expected)
+    if len(actual) != expected {
+        t.Errorf("got %v bytes, expected %v,", actual, expected)
+    }
+}
