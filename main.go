@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
-    "syscall"
 
 	"github.com/gorilla/mux"
 )
@@ -18,15 +19,21 @@ const (
 	port    string = ":8080"
 )
 
+var CHIPKUS = map[string]string{}
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	// Attach handlers
-    fileServer := http.FileServer(http.Dir("./static"))
-    r.Handle("/", fileServer)
+	fileServer := http.FileServer(http.Dir("./static"))
+	r.Handle("/", fileServer)
 	r.HandleFunc("/paste", pasteHandler).Methods("POST")
-	r.HandleFunc("/paste/", pasteHandler).Methods("POST")
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
+	r.HandleFunc("/fetch/{id}", fetchHandler).Methods("GET")
 
 	return r
 }
@@ -53,7 +60,7 @@ func main() {
 	}()
 
 	sigChan := make(chan os.Signal)
-    signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
 
 	sig := <-sigChan
 
@@ -69,13 +76,42 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "chipku v%s", version)
 }
 
+func fetchHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, ok := vars["id"]
+	if !ok {
+		fmt.Printf("Error while fetching vars")
+		return
+	}
+	if x, found := CHIPKUS[id]; found {
+		fmt.Fprintf(w, "%s", x)
+	} else {
+		fmt.Fprintf(w, "Invalid id (%s) provided :(", id)
+	}
+}
+
+var letterBytes = "abcdefghijklmnopqrstuvwxyz"
+
+func RandStringBytes(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Int63()%int64(len(letterBytes))]
+	}
+	return string(b)
+}
+
+func store(v string) string {
+	hash_val := RandStringBytes(6)
+	CHIPKUS[hash_val] = v
+	return hash_val
+}
+
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
-    if err := r.ParseForm(); err != nil {
-        fmt.Fprintf(w, "ParseForm() err: %v", err)
-        return
-    }
-    fmt.Printf("Got %s", r.Body)
-    fmt.Fprintf(w, "POST request successful\n")
-    paste := r.FormValue("paste-area")
-    fmt.Fprintf(w, "paste = %s\n", paste)
+	if err := r.ParseForm(); err != nil {
+		fmt.Fprintf(w, "ParseForm() err: %v", err)
+		return
+	}
+	value := r.FormValue("paste-area")
+	hash_val := store(value)
+	fmt.Fprintf(w, "%s\n", hash_val)
 }
