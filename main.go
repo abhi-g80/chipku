@@ -33,7 +33,7 @@ func newRouter() *mux.Router {
 	r.Handle("/", fileServer)
 	r.HandleFunc("/paste", pasteHandler).Methods("POST")
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
-	r.HandleFunc("/fetch/{id}", fetchHandler).Methods("GET")
+	r.HandleFunc("/{id}", fetchHandler).Methods("GET")
 
 	return r
 }
