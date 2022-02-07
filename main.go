@@ -21,12 +21,16 @@ const (
 
 var Chipkus = map[string]string{}
 
+var l = log.New(os.Stdout, "chipku -> ", log.LstdFlags)
+
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
+
+    l.Println("attaching handlers")
 
 	// Attach handlers
 	fileServer := http.FileServer(http.Dir("./static"))
@@ -35,11 +39,12 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
 	r.HandleFunc("/{id}", fetchHandler).Methods("GET")
 
+    l.Println("return router object")
+
 	return r
 }
 
 func main() {
-	l := log.New(os.Stdout, "chipku -> ", log.LstdFlags)
 	r := newRouter()
 
 	s := &http.Server{
@@ -51,7 +56,7 @@ func main() {
 	}
 
 	go func() {
-		l.Println("Starting server on port", port)
+		l.Println("starting server on port", port)
 
 		err := s.ListenAndServe()
 		if err != nil {
@@ -64,7 +69,7 @@ func main() {
 
 	sig := <-sigChan
 
-	l.Printf("Received %s, gracefully shutdown", sig)
+	l.Printf("received %s, gracefully shutdown", sig)
 
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
@@ -80,7 +85,7 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
-		fmt.Printf("Error while fetching vars")
+		l.Println("Error while fetching vars")
 		return
 	}
 	if x, found := Chipkus[id]; found {
