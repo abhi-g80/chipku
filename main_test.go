@@ -43,9 +43,9 @@ func TestRandStringBytes(t *testing.T) {
     }
 }
 
-func TestPasteHandler(t *testing.T) {
+func TestPastePostHandler(t *testing.T) {
     var str = []byte("hello")
-    req, err := http.NewRequest("POST", "/product", bytes.NewBuffer(str))
+    req, err := http.NewRequest("POST", "/", bytes.NewBuffer(str))
     req.Header.Set("Content-Type", "application/json")
 
 	// req, err := http.NewRequest("POST", "", nil)
@@ -55,7 +55,7 @@ func TestPasteHandler(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	hf := http.HandlerFunc(pasteHandler)
+	hf := http.HandlerFunc(pastePostHandler)
 	hf.ServeHTTP(recorder, req)
 
 	// Check the status code is what we expect.

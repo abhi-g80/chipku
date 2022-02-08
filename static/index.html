@@ -3,15 +3,12 @@
         <meta charset="UTF-8" />
     </head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-          rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js" integrity="sha512-E9vR5BfN3bwSc45BWl95328hvOcBYjMzKAKgdNM59yQXpTC4glztZyVoFJRp5qPc5A95zUZ8D5N7kEwUtJ9f6w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <body>
-        <div class="center-align input-field row col s6">
+        <div class="center-align input-field row col s10 pull-s1 m6 pull-m3 l4 pull-l4">
             <form method="post" action="/paste" class="input-field col s12">
-                <!-- <textarea name="paste-area" placeholder="chipku something" class="materialize-textarea" autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea> -->
-                <textarea autocorrect="off" spellcheck="false" name="paste-area" placeholder="chipku something" class="materialize-textarea" ></textarea>
-                <!-- <input type="submit" value="submit"/> -->
-                <!-- <a class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a> -->
+                <textarea autocorrect="off" spellcheck="false" name="paste-area" placeholder="chipku something" class="materialize-textarea"></textarea>
                 <button class="btn waves-effect waves-light" type="submit" name="action">Submit
                     <i class="material-icons right">send</i>
                 </button>
