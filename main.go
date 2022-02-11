@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"text/template"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -48,7 +49,7 @@ func init() {
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
-    logger.Println("attaching handlers")
+    logger.Println("Info  -> attaching handlers")
 
 	// Attach handlers
 	fileServer := http.FileServer(http.Dir("./static"))
@@ -58,13 +59,13 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
 	r.HandleFunc("/{id}", fetchHandler).Methods("GET")
 
-    logger.Println("return router object")
+    logger.Println("Info  -> return router object")
 
 	return r
 }
 
 func main() {
-    logger.Printf("starting chipku v%s", version)
+    logger.Printf("Info  -> starting chipku v%s", version)
 	r := newRouter()
 
 	s := &http.Server{
@@ -76,7 +77,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Println("starting server on port", port)
+		logger.Println("Info  -> starting server on port", port)
 
 		err := s.ListenAndServe()
 		if err != nil {
@@ -89,7 +90,7 @@ func main() {
 
 	sig := <-sigChan
 
-	logger.Printf("received %s, gracefully shutdown", sig)
+	logger.Printf("Info  -> received %s, gracefully shutdown", sig)
 
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
@@ -101,15 +102,31 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "chipku v%s", version)
 }
 
+type CodeData struct {
+    Code string
+}
+
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
-		logger.Println("Error while fetching vars")
+		logger.Println("Error -> while fetching vars")
 		return
 	}
 	if x, found := Chipkus[id]; found {
-		fmt.Fprintf(w, "%s", x)
+        ts, err := template.ParseFiles("./static/code.html.tmpl")
+        if err != nil {
+            logger.Println("Error -> while loading code template")
+            logger.Printf("Error -> %s", err)
+            return
+        }
+        data := CodeData{Code: x}
+        err = ts.Execute(w, data)
+        if err != nil {
+            logger.Println("Error -> something went wrong while templating code")
+            logger.Printf("Error -> %s", err)
+        }
+		// fmt.Fprintf(w, "%s", x)
 	} else {
 		fmt.Fprintf(w, "Invalid id (%s) provided :(", id)
 	}
@@ -128,7 +145,7 @@ func pastePostHandler(w http.ResponseWriter, r *http.Request) {
 func pastePutHandler(w http.ResponseWriter, r *http.Request) {
     b, err := ioutil.ReadAll(r.Body)
     if err != nil {
-        logger.Printf("error while reading body")
+        logger.Printf("Error -> while reading body")
     }
     hash_val := store(string(b))
     fmt.Fprintf(w, "%s", hash_val)
