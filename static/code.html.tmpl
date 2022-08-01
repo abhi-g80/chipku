@@ -1,5 +1,47 @@
 <html>
+    <style>
+        * { box-sizing: border-box; }
+
+        html, body { margin: 0; }
+
+        body {
+            height: 100vh;
+            padding: 2rem;
+            background: #282828;
+            color: #B0BEC5;
+            /* font-family: 'Courier New', Courier, monospace; */
+            font-family: consolas;
+            line-height: 1.1;
+
+            display: flex;
+        }
+
+        
+    pre {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        overflow: auto;
+        font-family: inherit;
+        font-size: 1rem;
+        line-height: inherit;
+        counter-reset: line;        
+    }
+    code {
+        counter-increment: line;
+    }
+      
+    code::before {
+        content: counter(line);
+        display: inline-block;
+        width: 2em; /* Fixed width */
+        padding: 0 1em 0.3em 0;
+        margin-right: .5em;
+        color: #888;
+        -webkit-user-select: none;
+    }
+    </style>
 <body>
-<pre class="line-numbers"><code class="language-python">{{.Code}}</code></pre>
+<pre class="line-numbers">{{.Code}}</pre>
 </body>
 </html>

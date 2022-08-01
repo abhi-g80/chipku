@@ -1,6 +1,7 @@
 package main
 
 import (
+    "strings"
 	"context"
 	"fmt"
 	"io/ioutil"
@@ -120,7 +121,13 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
             logger.Printf("Error -> %s", err)
             return
         }
-        data := CodeData{Code: x}
+        var y []string
+        for _, line := range strings.Split(strings.TrimSuffix(x, "\n"), "\n") {
+            tmp := "<code>" + line + "</code>"
+            y = append(y, tmp)
+        }
+        z := strings.Join(y, "")
+        data := CodeData{Code: z}
         err = ts.Execute(w, data)
         if err != nil {
             logger.Println("Error -> something went wrong while templating code")
