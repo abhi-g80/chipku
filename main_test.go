@@ -28,7 +28,7 @@ func TestDefaultHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "chipku v0.0.2"
+	expected := "chipku v0.0.3"
 	actual := recorder.Body.String()
 	if string(actual) != string(expected) {
 		t.Errorf("handler returned unexpected body: got %v want %v", actual, expected)

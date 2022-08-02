@@ -1,15 +1,16 @@
 package main
 
 import (
-    "strings"
 	"context"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"text/template"
 	"time"
@@ -18,14 +19,14 @@ import (
 )
 
 const (
-	version string = "0.0.2"
+	version string = "0.0.3"
 	port    string = ":8080"
 )
 
 var Chipkus = map[string]string{}
 
 // Global logger (bad !) think of middleware
-var logger = log.New(os.Stdout, "chipku -> ", log.LstdFlags|log.Lmicroseconds)
+var logger = log.New(os.Stdout, "[\033[0;34mchipku\033[0m] ", log.LstdFlags|log.Lmicroseconds)
 
 var letterBytes = "abcdefghijklmnopqrstuvwxyz"
 
@@ -123,7 +124,7 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
         }
         var y []string
         for _, line := range strings.Split(strings.TrimSuffix(x, "\n"), "\n") {
-            tmp := "<code>" + line + "</code>"
+            tmp := "<code>" + html.EscapeString(line) + "</code>"
             y = append(y, tmp)
         }
         z := strings.Join(y, "")
