@@ -1,22 +1,23 @@
+<!DOCTYPE html>
 <html>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/base16/gruvbox-dark-soft.min.css">
     <style>
-        * { box-sizing: border-box; }
+    * { box-sizing: border-box; }
 
-        html, body { margin: 0; }
+    html, body { margin: 0; }
 
-        body {
-            height: 100vh;
-            padding: 2rem;
-            background: #282828;
-            color: #B0BEC5;
-            /* font-family: 'Courier New', Courier, monospace; */
-            font-family: consolas;
-            line-height: 1.1;
+    body {
+        height: 100vh;
+        padding: 2rem;
+        background: #32302f;
+        color: #B0BEC5;
+        /* font-family: 'Courier New', Courier, monospace; */
+        font-family: consolas;
+        line-height: 1.1;
 
-            display: flex;
-        }
+        display: flex;
+    }
 
-        
     pre {
         height: 100%;
         width: 100%;
@@ -40,8 +41,16 @@
         color: #888;
         -webkit-user-select: none;
     }
+    pre code.hljs {
+        padding: 0em;
+    }
     </style>
 <body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
+<script>
+console.log(window.location.href.split('/'));
+</script>
+<script>hljs.highlightAll();</script>
 <pre class="line-numbers">{{.Code}}</pre>
 </body>
 </html>

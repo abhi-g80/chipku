@@ -20,7 +20,6 @@ import (
 
 const (
 	version string = "0.0.3"
-	port    string = ":8080"
 )
 
 var Chipkus = map[string]string{}
@@ -51,7 +50,7 @@ func init() {
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
-    logger.Println("Info  -> attaching handlers")
+	logger.Println("\033[0;35m[Info]\033[0m  -> attaching handlers")
 
 	// Attach handlers
 	fileServer := http.FileServer(http.Dir("./static"))
@@ -59,15 +58,29 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/paste", pastePostHandler).Methods("POST")
 	r.HandleFunc("/paste", pastePutHandler).Methods("PUT")
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
-	r.HandleFunc("/{id}", fetchHandler).Methods("GET")
+	r.HandleFunc("/{hash_id}", fetchHandler).Methods("GET")
 
-    logger.Println("Info  -> return router object")
+	logger.Println("\033[0;35m[Info]\033[0m  -> return router object")
 
 	return r
 }
 
+func usage() {
+    fmt.Println("Usage: chipku <port>")
+    fmt.Println("default port is 8080")
+    os.Exit(0)
+}
+
 func main() {
-    logger.Printf("Info  -> starting chipku v%s", version)
+    var port string = ":8080"
+
+    if len(os.Args) == 2 {
+        port = ":" + os.Args[1]
+    } else if len(os.Args) > 2 {
+        usage()
+    }
+
+	logger.Printf("\033[0;35m[Info]\033[0m  -> starting chipku v%s", version)
 	r := newRouter()
 
 	s := &http.Server{
@@ -79,7 +92,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Println("Info  -> starting server on port", port)
+		logger.Println("\033[0;35m[Info]\033[0m  -> starting server on port", port)
 
 		err := s.ListenAndServe()
 		if err != nil {
@@ -92,7 +105,7 @@ func main() {
 
 	sig := <-sigChan
 
-	logger.Printf("Info  -> received %s, gracefully shutdown", sig)
+	logger.Printf("\033[0;33m[Debug]\033[0m -> received %s, gracefully shutdown", sig)
 
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
@@ -105,36 +118,41 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type CodeData struct {
-    Code string
+	Code string
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, ok := vars["id"]
+	hash_id, ok := vars["hash_id"]
 	if !ok {
-		logger.Println("Error -> while fetching vars")
+		logger.Println("\033[0;31m[Error]\033[0m -> while fetching vars")
 		return
 	}
+	split := strings.Split(hash_id, ".")
+	id := split[0]
+	var lang string = "plaintext"
+	if len(split) > 1 {
+		lang = split[1]
+	}
 	if x, found := Chipkus[id]; found {
-        ts, err := template.ParseFiles("./static/code.html.tmpl")
-        if err != nil {
-            logger.Println("Error -> while loading code template")
-            logger.Printf("Error -> %s", err)
-            return
-        }
-        var y []string
-        for _, line := range strings.Split(strings.TrimSuffix(x, "\n"), "\n") {
-            tmp := "<code>" + html.EscapeString(line) + "</code>"
-            y = append(y, tmp)
-        }
-        z := strings.Join(y, "")
-        data := CodeData{Code: z}
-        err = ts.Execute(w, data)
-        if err != nil {
-            logger.Println("Error -> something went wrong while templating code")
-            logger.Printf("Error -> %s", err)
-        }
-		// fmt.Fprintf(w, "%s", x)
+		ts, err := template.ParseFiles("./static/code.html.tmpl")
+		if err != nil {
+			logger.Println("\033[0;31m[Error]\033[0m -> while loading code template")
+			logger.Printf("\033[0;31m[Error]\033[0m -> %s", err)
+			return
+		}
+		var y []string
+		for _, line := range strings.Split(strings.TrimSuffix(x, "\n"), "\n") {
+			tmp := "<code class=\"language-" + lang + "\">" + html.EscapeString(line) + "</code>"
+			y = append(y, tmp)
+		}
+		z := strings.Join(y, "")
+		data := CodeData{Code: z}
+		err = ts.Execute(w, data)
+		if err != nil {
+			logger.Println("\033[0;31m[Error]\033[0m -> something went wrong while templating code")
+			logger.Printf("\033[0;31m[Error]\033[0m -> %s", err)
+		}
 	} else {
 		fmt.Fprintf(w, "Invalid id (%s) provided :(", id)
 	}
@@ -147,14 +165,17 @@ func pastePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	value := r.FormValue("paste-area")
 	hash_val := store(value)
-	fmt.Fprintf(w, "%s", hash_val)
+	url := "/" + hash_val
+	logger.Printf("\033[0;35m[Info]\033[0m  -> New %s request from connection from %s", r.Method, r.RemoteAddr)
+	logger.Printf("\033[0;35m[Info]\033[0m  -> User-agent %s", r.UserAgent())
+	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
 func pastePutHandler(w http.ResponseWriter, r *http.Request) {
-    b, err := ioutil.ReadAll(r.Body)
-    if err != nil {
-        logger.Printf("Error -> while reading body")
-    }
-    hash_val := store(string(b))
-    fmt.Fprintf(w, "%s", hash_val)
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logger.Printf("\033[0;31m[Error]\033[0m -> while reading body")
+	}
+	hash_val := store(string(b))
+	fmt.Fprintf(w, "%s", hash_val)
 }
