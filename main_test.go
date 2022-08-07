@@ -63,3 +63,26 @@ func TestPastePostHandler(t *testing.T) {
 			status, http.StatusSeeOther)
 	}
 }
+
+func TestPastePutHandler(t *testing.T) {
+	var str = []byte("hello")
+	req, err := http.NewRequest("PUT", "/paste", bytes.NewBuffer(str))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("No-Html", "true")
+
+	// req, err := http.NewRequest("POST", "", nil)
+	// In case there is an error in forming the request, we fail and stop the test
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	recorder := httptest.NewRecorder()
+	hf := http.HandlerFunc(pastePutHandler)
+	hf.ServeHTTP(recorder, req)
+
+	// Check the status code is what we expect.
+	if status := recorder.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
