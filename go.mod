@@ -1,5 +1,5 @@
 module github.com/abhi-g80/chipku
 
-go 1.14
+go 1.16
 
 require github.com/gorilla/mux v1.8.0

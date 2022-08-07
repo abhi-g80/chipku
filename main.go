@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	"html"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -19,8 +21,15 @@ import (
 )
 
 const (
-	version string = "0.0.3"
+	version string = "0.1.0"
 )
+
+//go:embed static/index.html
+var index embed.FS
+
+//go:embed static/code.html.tmpl
+var code_template embed.FS
+
 
 var Chipkus = map[string]string{}
 
@@ -52,8 +61,10 @@ func newRouter() *mux.Router {
 
 	logger.Println("\033[0;35m[Info]\033[0m  -> attaching handlers")
 
-	// Attach handlers
-	fileServer := http.FileServer(http.Dir("./static"))
+    fsys := fs.FS(index)
+    html, _ := fs.Sub(fsys, "static")
+
+	fileServer := http.FileServer(http.FS(html))
 	r.Handle("/", fileServer)
 	r.HandleFunc("/paste", pastePostHandler).Methods("POST")
 	r.HandleFunc("/paste", pastePutHandler).Methods("PUT")
@@ -135,9 +146,16 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 		lang = split[1]
 	}
 	if x, found := Chipkus[id]; found {
-		ts, err := template.ParseFiles("./static/code.html.tmpl")
+        v, _ := r.Header["No-Html"]
+        if v != nil {
+            w.Header().Add("Content-Type", "text; charset=UTF-8")
+            fmt.Fprintf(w, "%s", x)
+            return
+        }
+        fsys := fs.FS(code_template)
+		ts, err := template.ParseFS(fsys, "static/code.html.tmpl")
 		if err != nil {
-			logger.Println("\033[0;31m[Error]\033[0m -> while loading code template")
+			logger.Println("\033[0;31m[Error]\033[0m -> could not load code template 😔")
 			logger.Printf("\033[0;31m[Error]\033[0m -> %s", err)
 			return
 		}
@@ -177,5 +195,7 @@ func pastePutHandler(w http.ResponseWriter, r *http.Request) {
 		logger.Printf("\033[0;31m[Error]\033[0m -> while reading body")
 	}
 	hash_val := store(string(b))
+	logger.Printf("\033[0;35m[Info]\033[0m  -> New %s request from connection from %s", r.Method, r.RemoteAddr)
+	logger.Printf("\033[0;35m[Info]\033[0m  -> User-agent %s", r.UserAgent())
 	fmt.Fprintf(w, "%s", hash_val)
 }
