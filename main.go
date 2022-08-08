@@ -30,7 +30,6 @@ var index embed.FS
 //go:embed static/code.html.tmpl
 var code_template embed.FS
 
-
 var Chipkus = map[string]string{}
 
 // Global logger (bad !) think of middleware
