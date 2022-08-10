@@ -27,7 +27,7 @@ func TestDefaultHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	expected := "chipku v0.1.0"
+	expected := "chipku v" + version
 	actual := recorder.Body.String()
 	if string(actual) != string(expected) {
 		t.Errorf("handler returned unexpected body: got %v want %v", actual, expected)
@@ -68,7 +68,6 @@ func TestPastePutHandler(t *testing.T) {
 	var str = []byte("hello")
 	req, err := http.NewRequest("PUT", "/paste", bytes.NewBuffer(str))
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("No-Html", "true")
 
 	// req, err := http.NewRequest("POST", "", nil)
 	// In case there is an error in forming the request, we fail and stop the test
