@@ -7,7 +7,6 @@ import (
 	"html"
 	"io/fs"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -20,10 +19,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	version string = "0.1.1"
-)
-
 //go:embed static/index.html
 var index embed.FS
 
@@ -31,29 +26,6 @@ var index embed.FS
 var code_template embed.FS
 
 var Chipkus = map[string]string{}
-
-// colors
-const (
-	PURPLE = "\033[0;35m"
-	RED    = "\033[0;31m"
-	BLUE   = "\033[0;34m"
-	YELLOW = "\033[0;33m"
-	RESET  = "\033[0m"
-)
-
-var logger = log.New(os.Stdout, "["+BLUE+"chipku"+RESET+"] ", log.LstdFlags|log.Lmicroseconds)
-
-func LogInfo(format string, a ...interface{}) {
-	logger.Printf(PURPLE+"[info] "+RESET+format, a...)
-}
-
-func LogDebug(format string, a ...interface{}) {
-	logger.Printf(YELLOW+"[debug] "+RESET+format, a...)
-}
-
-func LogError(format string, a ...interface{}) {
-	logger.Printf(RED+"[error] "+RESET+format, a...)
-}
 
 var letterBytes = "abcdefghijklmnopqrstuvwxyz"
 
@@ -108,7 +80,7 @@ func main() {
 		usage()
 	}
 
-	LogInfo("starting chipku v%s", version)
+	LogInfo("starting chipku v%s", Version)
 	r := newRouter()
 
 	s := &http.Server{
@@ -142,7 +114,7 @@ func main() {
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "chipku v%s", version)
+	fmt.Fprintf(w, "chipku v%s", Version)
 }
 
 type CodeData struct {
