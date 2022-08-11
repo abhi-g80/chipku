@@ -1,3 +1,6 @@
+![build](https://github.com/abhi-g80/chipku/actions/workflows/build.yml/badge.svg)
+![test](https://github.com/abhi-g80/chipku/actions/workflows/test.yml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/abhi-g80/chipku)](https://goreportcard.com/report/github.com/abhi-g80/chipku)
 Chipku 🗑️
 =========
 Paste bin in Golang.
@@ -16,7 +19,7 @@ You may download the standalone binary and run it as,
 
 Or you may download the project and build (or run) from source,
 
-    go run main.go
+    go run .
     # or
     go build -o chipku
 
