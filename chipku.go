@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context"
+	// "context"
 	"embed"
 	"fmt"
 	"html"
@@ -10,9 +10,9 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
-	"os/signal"
+	// "os/signal"
 	"strings"
-	"syscall"
+	// "syscall"
 	"text/template"
 	"time"
 
@@ -71,47 +71,47 @@ func usage() {
 	os.Exit(0)
 }
 
-func main() {
-	var port string = ":8080"
+// func main() {
+// 	var port string = ":8080"
 
-	if len(os.Args) == 2 {
-		port = ":" + os.Args[1]
-	} else if len(os.Args) > 2 {
-		usage()
-	}
+// 	if len(os.Args) == 2 {
+// 		port = ":" + os.Args[1]
+// 	} else if len(os.Args) > 2 {
+// 		usage()
+// 	}
 
-	LogInfo("starting chipku v%s", Version)
-	r := newRouter()
+// 	LogInfo("starting chipku v%s", Version)
+// 	r := newRouter()
 
-	s := &http.Server{
-		Addr:         port,
-		Handler:      r,
-		IdleTimeout:  120 * time.Second,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 2 * time.Second,
-	}
+// 	s := &http.Server{
+// 		Addr:         port,
+// 		Handler:      r,
+// 		IdleTimeout:  120 * time.Second,
+// 		ReadTimeout:  1 * time.Second,
+// 		WriteTimeout: 2 * time.Second,
+// 	}
 
-	go func() {
-		LogInfo("using port %s", port)
+// 	go func() {
+// 		LogInfo("using port %s", port)
 
-		err := s.ListenAndServe()
-		if err != nil {
-			logger.Fatal(err)
-		}
-	}()
+// 		err := s.ListenAndServe()
+// 		if err != nil {
+// 			logger.Fatal(err)
+// 		}
+// 	}()
 
-	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
+// 	sigChan := make(chan os.Signal)
+// 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
 
-	sig := <-sigChan
+// 	sig := <-sigChan
 
-	LogDebug("received %s, gracefully shutting down", sig)
+// 	LogDebug("received %s, gracefully shutting down", sig)
 
-	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+// 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
-	defer cancel()
-	s.Shutdown(tc)
-}
+// 	defer cancel()
+// 	s.Shutdown(tc)
+// }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "chipku v%s", Version)

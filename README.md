@@ -22,7 +22,9 @@ Or you may download the project and build (or run) from source,
 
     go run .
     # or
-    go build -o chipku
+    go build -o chipku && ./chipku
+    # or
+    go install && chipku
 
 
 Usage
