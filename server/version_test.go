@@ -1,11 +1,11 @@
 //version_test.gp
-package main
+package server
 
 import (
 	"testing"
 )
 
-var version string = "0.1.1"
+var version string = "0.2.0"
 
 func TestVersion(t *testing.T) {
 	if version != Version {
