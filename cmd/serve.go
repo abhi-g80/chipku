@@ -5,16 +5,15 @@ import (
 
 	"github.com/spf13/cobra"
 
-  "github.com/abhi-g80/chipku/server"
+	"github.com/abhi-g80/chipku/server"
 )
 
 var port string
 
 func init() {
 	rootCmd.AddCommand(serve)
-    serve.Flags().StringVarP(&port, "port", "p", "8080", "port to serve on")
+	serve.Flags().StringVarP(&port, "port", "p", "8080", "port to serve on")
 }
-
 
 var serve = &cobra.Command{
 	Use:   "serve",
@@ -22,7 +21,7 @@ var serve = &cobra.Command{
 	Long:  `Start the pastebin server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Printf("Chipku - a no frill pastebin v%s\n", Version)
-        server.Serve(port)
+		server.Serve(port)
 	},
 }
 

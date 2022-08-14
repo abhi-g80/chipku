@@ -23,12 +23,13 @@ import (
 var index embed.FS
 
 //go:embed static/code.html.tmpl
-var code_template embed.FS
+var codeTemplate embed.FS
 
-var Chipkus = map[string]string{}
+var chipkus = map[string]string{}
 
 var letterBytes = "abcdefghijklmnopqrstuvwxyz"
 
+// RandStringBytes exported
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -38,9 +39,9 @@ func RandStringBytes(n int) string {
 }
 
 func store(v string) string {
-	hash_val := RandStringBytes(6)
-	Chipkus[hash_val] = v
-	return hash_val
+	hashVal := RandStringBytes(6)
+	chipkus[hashVal] = v
+	return hashVal
 }
 
 func init() {
@@ -60,31 +61,18 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/paste", pastePostHandler).Methods("POST")
 	r.HandleFunc("/paste", pastePutHandler).Methods("PUT")
 	r.HandleFunc("/default", defaultHandler).Methods("GET")
-	r.HandleFunc("/{hash_id}", fetchHandler).Methods("GET")
+	r.HandleFunc("/{hashID}", fetchHandler).Methods("GET")
 
 	return r
 }
 
-func usage() {
-	fmt.Println("Usage: chipku <port>")
-	fmt.Println("default port is 8080")
-	os.Exit(0)
-}
-
+// Serve exported
 func Serve(port string) {
-	// var port string = ":8080"
-
-	// if len(os.Args) == 2 {
-	// 	port = ":" + os.Args[1]
-	// } else if len(os.Args) > 2 {
-	// 	usage()
-	// }
-
 	LogInfo("starting chipku v%s", Version)
 	r := newRouter()
 
 	s := &http.Server{
-        Addr:         ":"+port,
+		Addr:         ":" + port,
 		Handler:      r,
 		IdleTimeout:  120 * time.Second,
 		ReadTimeout:  1 * time.Second,
@@ -100,8 +88,8 @@ func Serve(port string) {
 		}
 	}()
 
-	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT)
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 
 	sig := <-sigChan
 
@@ -110,38 +98,43 @@ func Serve(port string) {
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
 	defer cancel()
-	s.Shutdown(tc)
+
+	err := s.Shutdown(tc)
+	if err != nil {
+		LogError("could not shutdown gracefully %s", err)
+	}
 }
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "chipku v%s", Version)
 }
 
+// CodeData exported
 type CodeData struct {
 	Code string
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	hash_id, ok := vars["hash_id"]
+	hashID, ok := vars["hashID"]
 	if !ok {
 		LogError("something went wrong while fetching vars %v", vars)
 		return
 	}
-	split := strings.Split(hash_id, ".")
+	split := strings.Split(hashID, ".")
 	id := split[0]
 	var lang string = "plaintext"
 	if len(split) > 1 {
 		lang = split[1]
 	}
-	if x, found := Chipkus[id]; found {
-		v, _ := r.Header["No-Html"]
-		if v != nil {
+	if x, found := chipkus[id]; found {
+		_, ok := r.Header["No-Html"]
+		if ok {
 			w.Header().Add("Content-Type", "text; charset=UTF-8")
 			fmt.Fprintf(w, "%s", x)
 			return
 		}
-		fsys := fs.FS(code_template)
+		fsys := fs.FS(codeTemplate)
 		ts, err := template.ParseFS(fsys, "static/code.html.tmpl")
 		if err != nil {
 			LogError("could not load code template 😔")
@@ -170,8 +163,8 @@ func pastePostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	value := r.FormValue("paste-area")
-	hash_val := store(value)
-	url := "/" + hash_val
+	hashVal := store(value)
+	url := "/" + hashVal
 	LogInfo("new %s request from connection from %s", r.Method, r.RemoteAddr)
 	LogInfo("User-agent %s", r.UserAgent())
 	http.Redirect(w, r, url, http.StatusSeeOther)
@@ -182,8 +175,8 @@ func pastePutHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Printf("\033[0;31m[Error]\033[0m -> while reading body")
 	}
-	hash_val := store(string(b))
+	hashVal := store(string(b))
 	LogInfo("new %s request from connection from %s", r.Method, r.RemoteAddr)
 	LogInfo("User-agent %s", r.UserAgent())
-	fmt.Fprintf(w, "%s", hash_val)
+	fmt.Fprintf(w, "%s", hashVal)
 }
