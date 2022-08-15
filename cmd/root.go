@@ -1,9 +1,10 @@
 package cmd
 
 import (
-	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/abhi-g80/chipku/server"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -14,13 +15,19 @@ var rootCmd = &cobra.Command{
 May be used for sharing snippets with your loved ones and colleagues.
 Partial documentation is available at http://github.com/abhi-go/chipku`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("And apparently, this is fun ?!")
+		// print cmd help if no serve subcommand isn't invoked
+		err := cmd.Help()
+		if err != nil {
+			server.LogError(err.Error())
+			os.Exit(1)
+		}
 	},
 }
 
+// Execute try to run the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		server.LogError(err.Error())
 		os.Exit(1)
 	}
 }

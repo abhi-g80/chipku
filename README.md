@@ -16,16 +16,17 @@ Installation
 
 You may download the standalone binary and run it as,
 
-    ./chipku
+    ./chipku serve
+
+By default the binary starts listening on port `8080`. To change this, please set the port using `--port` flag.
+
+    ./chipku serve --port=8081
 
 Or you may download the project and build (or run) from source,
 
-    go run .
+    go build -o chipku && ./chipku serve
     # or
-    go build -o chipku && ./chipku
-    # or
-    go install && chipku
-
+    go install && chipku serve
 
 Usage
 -----
