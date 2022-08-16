@@ -29,7 +29,7 @@ var chipkus = map[string]string{}
 
 var letterBytes = "abcdefghijklmnopqrstuvwxyz"
 
-// RandStringBytes exported
+// RandStringBytes return a random string bytes of size n
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -153,12 +153,14 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 			LogError("something went wrong while templating code %s", err)
 		}
 	} else {
+		LogInfo("invalid id %s requested by %s", id, r.RemoteAddr)
 		fmt.Fprintf(w, "Invalid id %s provided :(", id)
 	}
 }
 
 func pastePostHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
+		LogError("ParseForm() err: %v", err)
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
@@ -173,7 +175,8 @@ func pastePostHandler(w http.ResponseWriter, r *http.Request) {
 func pastePutHandler(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		logger.Printf("\033[0;31m[Error]\033[0m -> while reading body")
+		LogError("while reading body = %v", b)
+		return
 	}
 	hashVal := store(string(b))
 	LogInfo("new %s request from connection from %s", r.Method, r.RemoteAddr)
