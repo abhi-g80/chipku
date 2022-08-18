@@ -17,7 +17,7 @@ func TestDefaultHandler(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	hf := http.HandlerFunc(defaultHandler)
+	hf := http.HandlerFunc(DefaultHandler)
 	hf.ServeHTTP(recorder, req)
 
 	// Check the status code is what we expect.
@@ -34,14 +34,6 @@ func TestDefaultHandler(t *testing.T) {
 	}
 }
 
-func TestRandStringBytes(t *testing.T) {
-	var expected int = 5
-	actual := RandStringBytes(expected)
-	if len(actual) != expected {
-		t.Errorf("got %v bytes, expected %v,", actual, expected)
-	}
-}
-
 func TestPastePostHandler(t *testing.T) {
 	var str = []byte("hello")
 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer(str))
@@ -54,7 +46,7 @@ func TestPastePostHandler(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	hf := http.HandlerFunc(pastePostHandler)
+	hf := http.HandlerFunc(PastePostHandler)
 	hf.ServeHTTP(recorder, req)
 
 	// Check the status code is what we expect.
@@ -76,7 +68,7 @@ func TestPastePutHandler(t *testing.T) {
 	}
 
 	recorder := httptest.NewRecorder()
-	hf := http.HandlerFunc(pastePutHandler)
+	hf := http.HandlerFunc(PastePutHandler)
 	hf.ServeHTTP(recorder, req)
 
 	// Check the status code is what we expect.
