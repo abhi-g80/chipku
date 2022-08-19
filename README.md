@@ -42,7 +42,7 @@ To get your snippet in command-line, set the `No-Html` HTTP header,
 ![httpie-get](docs/httpie-get.png "httpie-get")
 
 
-Developement
+Development
 ------------
 
 To run tests, use
