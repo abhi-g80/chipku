@@ -91,15 +91,15 @@ func FetchHandler(w http.ResponseWriter, r *http.Request) {
 	if len(split) > 1 {
 		lang = split[1]
 	}
-	if x, found := chipkus[id]; found {
+	if data, found := chipkus[id]; found {
 		_, ok := r.Header["No-Html"]
 		if ok {
 			w.Header().Add("Content-Type", "text; charset=UTF-8")
-			fmt.Fprintf(w, "%s", x)
+			fmt.Fprintf(w, "%s", data)
 			return
 		}
 		ts := getCodeTemplate(codeTemplate)
-		enrichedData := enrichWithHTMLTags(x, lang)
+		enrichedData := enrichWithHTMLTags(data, lang)
 		err := ts.Execute(w, enrichedData)
 		if err != nil {
 			LogError("something went wrong while templating code %s", err)

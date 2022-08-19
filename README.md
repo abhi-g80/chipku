@@ -40,3 +40,26 @@ Or you can simply use command-line to `PUT` your text, using `httpie`
 To get your snippet in command-line, set the `No-Html` HTTP header,
 
 ![httpie-get](docs/httpie-get.png "httpie-get")
+
+
+Developement
+------------
+
+To run tests, use
+
+    make test
+
+Building the docker image and running it using docker-compose (serves over port 8090)
+
+    make up
+
+For linting and local builds
+
+    make lint
+    make build
+
+
+Credits
+-------
+
+This app was inspired by [bin](https://github.com/w4/bin), a pastebin in rust.
