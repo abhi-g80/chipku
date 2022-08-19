@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  chipku:
+    container_name: chipku
+    image: chipku:latest
+    build:
+      context: .
+    volumes:
+      - .:/app
+    ports:
+      - 8090:8090
