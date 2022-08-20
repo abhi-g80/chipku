@@ -19,7 +19,7 @@ func init() {
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
-	LogInfo("attaching handlers")
+	InfoLog.Printf("attaching handlers")
 
 	r.Handle("/", IndexFileServer())
 	r.HandleFunc("/paste", PastePostHandler).Methods("POST")
@@ -32,7 +32,7 @@ func newRouter() *mux.Router {
 
 // Serve exported
 func Serve(port string) {
-	LogInfo("starting chipku v%s", Version)
+	InfoLog.Printf("starting chipku v%s", Version)
 	r := newRouter()
 
 	s := &http.Server{
@@ -44,11 +44,11 @@ func Serve(port string) {
 	}
 
 	go func() {
-		LogInfo("using port %s", port)
+		InfoLog.Printf("using port %s", port)
 
 		err := s.ListenAndServe()
 		if err != nil {
-			logger.Fatal(err)
+			ErrorLog.Fatal(err)
 		}
 	}()
 
@@ -57,7 +57,7 @@ func Serve(port string) {
 
 	sig := <-sigChan
 
-	LogDebug("received %s, gracefully shutting down", sig)
+	DebugLog.Printf("received %s, gracefully shutting down", sig)
 
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 
@@ -65,6 +65,6 @@ func Serve(port string) {
 
 	err := s.Shutdown(tc)
 	if err != nil {
-		LogError("could not shutdown gracefully %s", err)
+		ErrorLog.Printf("could not shutdown gracefully %s", err)
 	}
 }

@@ -14,19 +14,11 @@ const (
 	RESET  = "\033[0m"
 )
 
-var logger = log.New(os.Stdout, "["+BLUE+"chipku"+RESET+"] ", log.LstdFlags|log.Lmicroseconds)
+// InfoLog info logger
+var InfoLog = log.New(os.Stdout, "["+BLUE+"INFO "+RESET+"] ", log.LstdFlags|log.Lmicroseconds)
 
-// LogInfo stylized Info logger
-func LogInfo(format string, a ...interface{}) {
-	logger.Printf("["+PURPLE+"info "+RESET+"] "+format, a...)
-}
+// DebugLog debug logger
+var DebugLog = log.New(os.Stdout, "["+YELLOW+"DEBUG"+RESET+"] ", log.LstdFlags|log.Lmicroseconds)
 
-// LogDebug stylized debug logger
-func LogDebug(format string, a ...interface{}) {
-	logger.Printf("["+YELLOW+"debug"+RESET+"] "+format, a...)
-}
-
-// LogError stylized error logger
-func LogError(format string, a ...interface{}) {
-	logger.Printf("["+RED+"error"+RESET+"] "+format, a...)
-}
+// ErrorLog error logger
+var ErrorLog = log.New(os.Stdout, "["+RED+"ERROR"+RESET+"] ", log.LstdFlags|log.Lmicroseconds)
