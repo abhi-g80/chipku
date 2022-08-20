@@ -53,11 +53,18 @@ Building the docker image and running it using docker-compose (serves over port 
 
     make up
 
+Checking the logs
+
+```bash
+docker compose logs # or docker-compose logs
+```
+
+![dockerlogs](docs/dockerlogs.png "dockerlogs")
+
 For linting and local builds
 
     make lint
     make build
-
 
 Credits
 -------
