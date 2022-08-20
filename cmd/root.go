@@ -18,7 +18,7 @@ Partial documentation is available at http://github.com/abhi-go/chipku`,
 		// print cmd help if no serve subcommand isn't invoked
 		err := cmd.Help()
 		if err != nil {
-			server.LogError(err.Error())
+			server.ErrorLog.Print(err.Error())
 			os.Exit(1)
 		}
 	},
@@ -27,7 +27,7 @@ Partial documentation is available at http://github.com/abhi-go/chipku`,
 // Execute try to run the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		server.LogError(err.Error())
+		server.ErrorLog.Print(err.Error())
 		os.Exit(1)
 	}
 }

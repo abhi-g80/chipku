@@ -61,8 +61,8 @@ func getCodeTemplate(templ embed.FS) *template.Template {
 	fsys := fs.FS(templ)
 	ts, err := template.ParseFS(fsys, "static/code.html.tmpl")
 	if err != nil {
-		LogError("could not load code template 😔")
-		LogError("%s", err)
+		ErrorLog.Println("could not load code template 😔")
+		ErrorLog.Printf("%s", err)
 	}
 	return ts
 }
@@ -82,7 +82,7 @@ func FetchHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	hashID, ok := vars["hashID"]
 	if !ok {
-		LogError("something went wrong while fetching vars %v", vars)
+		ErrorLog.Printf("something went wrong while fetching vars %v", vars)
 		return
 	}
 	split := strings.Split(hashID, ".")
@@ -102,10 +102,10 @@ func FetchHandler(w http.ResponseWriter, r *http.Request) {
 		enrichedData := enrichWithHTMLTags(data, lang)
 		err := ts.Execute(w, enrichedData)
 		if err != nil {
-			LogError("something went wrong while templating code %s", err)
+			ErrorLog.Printf("something went wrong while templating code %s", err)
 		}
 	} else {
-		LogInfo("invalid id %s requested by %s", id, r.RemoteAddr)
+		InfoLog.Printf("invalid id %s requested by %s", id, r.RemoteAddr)
 		fmt.Fprintf(w, "Invalid id %s provided :(", id)
 	}
 }
@@ -113,15 +113,15 @@ func FetchHandler(w http.ResponseWriter, r *http.Request) {
 // PastePostHandler POST handler func for managing snippets being posted via form
 func PastePostHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		LogError("ParseForm() err: %v", err)
+		ErrorLog.Printf("ParseForm() err: %v", err)
 		fmt.Fprintf(w, "ParseForm() err: %v", err)
 		return
 	}
 	value := r.FormValue("paste-area")
 	hashVal := store(value)
 	url := "/" + hashVal
-	LogInfo("new %s request from connection from %s", r.Method, r.RemoteAddr)
-	LogInfo("User-agent %s", r.UserAgent())
+	InfoLog.Printf("new %s request from connection from %s", r.Method, r.RemoteAddr)
+	InfoLog.Printf("User-agent %s", r.UserAgent())
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
@@ -129,11 +129,11 @@ func PastePostHandler(w http.ResponseWriter, r *http.Request) {
 func PastePutHandler(w http.ResponseWriter, r *http.Request) {
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		LogError("while reading body = %v", b)
+		ErrorLog.Printf("while reading body = %v", b)
 		return
 	}
 	hashVal := store(string(b))
-	LogInfo("new %s request from connection from %s", r.Method, r.RemoteAddr)
-	LogInfo("User-agent %s", r.UserAgent())
+	InfoLog.Printf("new %s request from connection from %s", r.Method, r.RemoteAddr)
+	InfoLog.Printf("User-agent %s", r.UserAgent())
 	fmt.Fprintf(w, "%s", hashVal)
 }

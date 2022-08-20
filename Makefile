@@ -13,7 +13,7 @@ BUILD = build
 BINARY = chipku
 LDFLAGS = "-s -w"
 
-.PHONY: fmt lint test install_deps clean
+.PHONY: fmt lint test install_deps clean run
 
 default: all
 
@@ -28,7 +28,7 @@ lint:
 	golangci-lint run -v
 
 richtest: install_deps
-	$(info **************** running \(rich\) tests ***********)
+	$(info **************** running tests - rich ***********)
 	richgo test -v ./...
 
 test: install_deps
@@ -52,3 +52,7 @@ clean:
 up:
 	$(info **************** docker build + up ****************)
 	docker-compose up --build --remove-orphans --detach
+
+run:
+	$(info **************** run  *****************************)
+	go run . serve
