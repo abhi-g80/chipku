@@ -20,9 +20,6 @@ var index embed.FS
 //go:embed static/code.html.tmpl
 var codeTemplate embed.FS
 
-// Version string
-const Version = "1.0.0"
-
 var chipkus = map[string]string{}
 
 var letterBytes = "abcdefghijklmnopqrstuvwxyz"
