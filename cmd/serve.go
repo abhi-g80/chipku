@@ -3,9 +3,8 @@ package cmd
 import (
 	"strconv"
 
-	"github.com/spf13/cobra"
-
 	"github.com/abhi-g80/chipku/server"
+	"github.com/spf13/cobra"
 )
 
 var port int

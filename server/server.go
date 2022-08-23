@@ -2,69 +2,70 @@ package server
 
 import (
 	"context"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
+func setGroundRules(e *echo.Echo, lvl log.Lvl) *echo.Echo {
+	e.HideBanner = true
+	e.HidePort = true
 
-func newRouter() *mux.Router {
-	r := mux.NewRouter()
-
-	InfoLog.Printf("attaching handlers")
-
-	r.Handle("/", IndexFileServer())
-	r.HandleFunc("/paste", PastePostHandler).Methods("POST")
-	r.HandleFunc("/paste", PastePutHandler).Methods("PUT")
-	r.HandleFunc("/default", DefaultHandler).Methods("GET")
-	r.HandleFunc("/{hashID}", FetchHandler).Methods("GET")
-
-	return r
-}
-
-// Serve exported
-func Serve(port string) {
-	InfoLog.Printf("starting chipku v%s", Version)
-	r := newRouter()
-
-	s := &http.Server{
-		Addr:         ":" + port,
-		Handler:      r,
-		IdleTimeout:  120 * time.Second,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 2 * time.Second,
+	DefaultLoggerConfig := middleware.LoggerConfig{
+		Skipper: middleware.DefaultSkipper,
+		Format: `{"time":"${time_rfc3339_nano}","level":"INFO","remote_ip":"${remote_ip}",` +
+			`"host":"${host}","method":"${method}","uri":"${uri}","user_agent":"${user_agent}",` +
+			`"status":${status},"error":"${error}","latency":${latency},"latency_human":"${latency_human}"` +
+			`,"bytes_in":${bytes_in},"bytes_out":${bytes_out}}` + "\n",
+		CustomTimeFormat: "2006-01-02 15:04:05.00000",
 	}
 
-	go func() {
-		InfoLog.Printf("using port %s", port)
+	// set level
+	e.Logger.SetLevel(lvl)
 
-		err := s.ListenAndServe()
-		if err != nil {
-			ErrorLog.Fatal(err)
+	// e.Use(middleware.Logger())
+	e.Use(middleware.LoggerWithConfig(DefaultLoggerConfig))
+	e.Use(middleware.Recover())
+
+	return e
+}
+
+// Serve the main function running the echo server
+func Serve(port string) {
+	e := echo.New()
+
+	e = setGroundRules(e, log.DEBUG)
+
+	e.Logger.Infof("starting server on port %s", port)
+
+	e.GET("/", echo.WrapHandler(IndexFileServer()))
+	e.GET("/version", version)
+	e.PUT("/paste", pastePutHandler)
+	e.POST("/paste", pastePostHandler)
+	e.GET("/:hashVal", fetchHandler)
+
+	// Start server
+	go func() {
+		if err := e.Start(":" + port); err != nil && err != http.ErrServerClosed {
+			e.Logger.Fatal("shutting down the server")
 		}
 	}()
 
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
-
-	sig := <-sigChan
-
-	DebugLog.Printf("received %s, gracefully shutting down", sig)
-
-	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	e.Logger.Debugf("got signal to quit %v", quit)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-
-	err := s.Shutdown(tc)
-	if err != nil {
-		ErrorLog.Printf("could not shutdown gracefully %s", err)
+	e.Logger.Info("closing down server")
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
 	}
 }
