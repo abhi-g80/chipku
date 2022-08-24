@@ -61,6 +61,8 @@ docker compose logs # or docker-compose logs
 
 ![dockerlogs](docs/dockerlogs.png "dockerlogs")
 
+Structured logs for easy parsing in tools like Datadog.
+
 For linting and local builds
 
     make lint

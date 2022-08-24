@@ -8,10 +8,12 @@ import (
 )
 
 var port int
+var debug bool
 
 func init() {
-	rootCmd.AddCommand(serve)
+	RootCmd.AddCommand(serve)
 	serve.Flags().IntVarP(&port, "port", "p", 8080, "port to serve on")
+	serve.Flags().BoolVarP(&debug, "debug", "d", false, "print debug messages")
 }
 
 var serve = &cobra.Command{
@@ -20,6 +22,7 @@ var serve = &cobra.Command{
 	Long:  `Start the Chipku server`,
 	Run: func(cmd *cobra.Command, args []string) {
 		p := strconv.Itoa(port)
-		server.Serve(p)
+		d := debug
+		server.Serve(p, d)
 	},
 }

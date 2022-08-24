@@ -36,10 +36,15 @@ func setGroundRules(e *echo.Echo, lvl log.Lvl) *echo.Echo {
 }
 
 // Serve the main function running the echo server
-func Serve(port string) {
+func Serve(port string, debug bool) {
 	e := echo.New()
 
-	e = setGroundRules(e, log.DEBUG)
+	var logLvl log.Lvl = log.INFO
+	if debug {
+		logLvl = log.DEBUG
+	}
+
+	e = setGroundRules(e, logLvl)
 
 	e.Logger.Infof("starting server on port %s", port)
 

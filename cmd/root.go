@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
+// RootCmd the root command for chipku
+var RootCmd = &cobra.Command{
 	Use:   "chipku",
 	Short: "Chipku is a no frill pastebin",
 	Long: `A fast and reliable pastebin server.
@@ -23,8 +25,9 @@ Partial documentation is available at http://github.com/abhi-g80/chipku`,
 }
 
 // Execute try to run the root command
-func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		os.Exit(1)
+func Execute() error {
+	if err := RootCmd.Execute(); err != nil {
+		return fmt.Errorf("root cmd: %v", err)
 	}
+	return nil
 }
