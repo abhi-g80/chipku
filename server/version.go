@@ -1,4 +1,4 @@
 package server
 
-// Version exported
-const Version string = "0.2.3"
+// Version string
+const Version string = "1.0.0"

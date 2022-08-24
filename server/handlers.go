@@ -11,7 +11,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 )
 
 //go:embed static/index.html
@@ -38,6 +38,12 @@ func RandStringBytes(n int) string {
 	return string(b)
 }
 
+func store(v string) string {
+	hashVal := RandStringBytes(6)
+	chipkus[hashVal] = v
+	return hashVal
+}
+
 // IndexFileServer read the static html and return the http handler
 func IndexFileServer() http.Handler {
 	fsys := fs.FS(index)
@@ -46,25 +52,17 @@ func IndexFileServer() http.Handler {
 	return http.FileServer(http.FS(html))
 }
 
-func store(v string) string {
-	hashVal := RandStringBytes(6)
-	chipkus[hashVal] = v
-	return hashVal
+func version(c echo.Context) error {
+	return c.String(http.StatusOK, "Chipku v"+Version)
 }
 
-// DefaultHandler return the chipku version
-func DefaultHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "chipku v%s", Version)
-}
-
-func getCodeTemplate(templ embed.FS) *template.Template {
+func getCodeTemplate(templ embed.FS) (*template.Template, error) {
 	fsys := fs.FS(templ)
 	ts, err := template.ParseFS(fsys, "static/code.html.tmpl")
 	if err != nil {
-		ErrorLog.Println("could not load code template 😔")
-		ErrorLog.Printf("%s", err)
+		return nil, fmt.Errorf("could not template: %v", err)
 	}
-	return ts
+	return ts, nil
 }
 
 func enrichWithHTMLTags(codedata string, language string) CodeData {
@@ -77,63 +75,44 @@ func enrichWithHTMLTags(codedata string, language string) CodeData {
 	return CodeData{Code: z}
 }
 
-// FetchHandler GET handler function for fetching the code snippets
-func FetchHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	hashID, ok := vars["hashID"]
-	if !ok {
-		ErrorLog.Printf("something went wrong while fetching vars %v", vars)
-		return
-	}
-	split := strings.Split(hashID, ".")
-	id := split[0]
+func fetchHandler(c echo.Context) error {
+	hashVal := c.Param("hashVal")
 	var lang string = "plaintext"
+	split := strings.Split(hashVal, ".")
+	id := split[0]
 	if len(split) > 1 {
 		lang = split[1]
 	}
-	if data, found := chipkus[id]; found {
-		_, ok := r.Header["No-Html"]
-		if ok {
-			w.Header().Add("Content-Type", "text; charset=UTF-8")
-			fmt.Fprintf(w, "%s", data)
-			return
-		}
-		ts := getCodeTemplate(codeTemplate)
-		enrichedData := enrichWithHTMLTags(data, lang)
-		err := ts.Execute(w, enrichedData)
-		if err != nil {
-			ErrorLog.Printf("something went wrong while templating code %s", err)
-		}
-	} else {
-		InfoLog.Printf("invalid id %s requested by %s", id, r.RemoteAddr)
-		fmt.Fprintf(w, "Invalid id %s provided :(", id)
+	data, found := chipkus[id]
+	if !found {
+		return c.String(http.StatusNotFound, "requested hash not found")
 	}
+	_, ok := c.Request().Header["No-Html"]
+	if ok {
+		c.Response().Header().Add("Content-Type", "text; charset=UTF-8")
+		return c.String(http.StatusOK, data)
+	}
+	ts, err := getCodeTemplate(codeTemplate)
+	if err != nil {
+		return err
+	}
+	enrichedData := enrichWithHTMLTags(data, lang)
+	return ts.Execute(c.Response().Writer, enrichedData)
 }
 
-// PastePostHandler POST handler func for managing snippets being posted via form
-func PastePostHandler(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		ErrorLog.Printf("ParseForm() err: %v", err)
-		fmt.Fprintf(w, "ParseForm() err: %v", err)
-		return
-	}
-	value := r.FormValue("paste-area")
+func pastePostHandler(c echo.Context) error {
+	value := c.FormValue("paste-area")
 	hashVal := store(value)
 	url := "/" + hashVal
-	InfoLog.Printf("new %s request from connection from %s", r.Method, r.RemoteAddr)
-	InfoLog.Printf("User-agent %s", r.UserAgent())
-	http.Redirect(w, r, url, http.StatusSeeOther)
+	return c.Redirect(http.StatusSeeOther, url)
 }
 
-// PastePutHandler PUT handler func for managing snippets sent via PUT
-func PastePutHandler(w http.ResponseWriter, r *http.Request) {
-	b, err := ioutil.ReadAll(r.Body)
+func pastePutHandler(c echo.Context) error {
+	value, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
-		ErrorLog.Printf("while reading body = %v", b)
-		return
+		return fmt.Errorf("while reading body: %v", err)
 	}
-	hashVal := store(string(b))
-	InfoLog.Printf("new %s request from connection from %s", r.Method, r.RemoteAddr)
-	InfoLog.Printf("User-agent %s", r.UserAgent())
-	fmt.Fprintf(w, "%s", hashVal)
+	hashVal := store(string(value))
+	c.Logger().Infof("responding %s", hashVal)
+	return c.String(http.StatusOK, hashVal)
 }

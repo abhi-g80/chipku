@@ -4,7 +4,7 @@
 
 Chipku - a no frill pastebin 🗑️
 ==============================
-Paste bin in Golang.
+Pastebin in Golang.
 
 This is an in-memory paste bin which tries to be extremely minimal and doesn't get in the way. Simply a tool to quickly share snippets. No backend databases, no code formatting or code commenting, no self-destructing messages.
 
@@ -14,7 +14,7 @@ If you restart the application, you **will lose** your snippets.
 Installation
 ------------
 
-You may download the standalone binary and run it as,
+You may download the standalone binary from the [releases](https://github.com/abhi-g80/chipku/releases) section and run it as,
 
     ./chipku serve
 
@@ -53,11 +53,20 @@ Building the docker image and running it using docker-compose (serves over port 
 
     make up
 
+Checking the logs
+
+```bash
+docker compose logs # or docker-compose logs
+```
+
+![dockerlogs](docs/dockerlogs.png "dockerlogs")
+
+Structured logs for easy parsing in tools like Datadog.
+
 For linting and local builds
 
     make lint
     make build
-
 
 Credits
 -------
