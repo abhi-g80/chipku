@@ -16,6 +16,4 @@ RUN make build
 
 EXPOSE 8090
 
-WORKDIR build
-
-ENTRYPOINT [ "chipku", "serve", "--port=8090" ]
+ENTRYPOINT [ "build/chipku", "serve", "--port=8090" ]
