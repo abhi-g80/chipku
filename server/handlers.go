@@ -87,7 +87,7 @@ func fetchHandler(c echo.Context) error {
 	if !found {
 		return c.String(http.StatusNotFound, "requested hash not found")
 	}
-	_, ok := c.Request().Header["No-Html"]
+	_, ok := c.Request().Header["X-No-Html"]
 	if ok {
 		c.Response().Header().Add("Content-Type", "text; charset=UTF-8")
 		return c.String(http.StatusOK, data)
