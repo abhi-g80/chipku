@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.16-alpine
+FROM golang:1.19-alpine
 
 # Define build env
 ENV GOOS linux
@@ -16,6 +16,4 @@ RUN make build
 
 EXPOSE 8090
 
-WORKDIR build
-
-ENTRYPOINT [ "chipku", "serve", "--port=8090" ]
+ENTRYPOINT [ "build/chipku", "serve", "--port=8090" ]

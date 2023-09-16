@@ -1,4 +1,4 @@
 package server
 
 // Version string
-const Version string = "1.0.0"
+const Version string = "1.1.0"
