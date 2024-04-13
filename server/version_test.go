@@ -6,7 +6,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	var version string = "1.1.0"
+	var version string = "1.2.0"
 
 	if version != Version {
 		t.Errorf("expected version %s, got %s", version, Version)
