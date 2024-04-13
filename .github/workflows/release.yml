@@ -32,7 +32,7 @@ jobs:
           sha256sum: true
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          goversion: 1.19
+          goversion: 1.22
           binary_name: chipku
           ldflags: -s -w
           extra_files: LICENSE README.md

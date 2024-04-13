@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM golang:1.19-alpine
+FROM golang:1.22-alpine
 
 # Define build env
 ENV GOOS linux
