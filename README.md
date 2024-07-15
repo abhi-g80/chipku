@@ -37,7 +37,7 @@ Or you can simply use command-line to `PUT` your text, using `httpie`
 
 ![httpie](docs/httpie.png "httpie")
 
-To get your snippet in command-line, set the `No-Html` HTTP header,
+To get your snippet in command-line, set the `X-No-Html` HTTP header,
 
 ![httpie-get](docs/httpie-get.png "httpie-get")
 
