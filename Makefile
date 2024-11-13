@@ -44,6 +44,11 @@ build: clean
 	mkdir $(BUILD)
 	go build -v -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)
 
+build-race: clean
+	$(info **************** building binaries ****************)
+	mkdir $(BUILD)
+	go build -v -race -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)-race
+
 clean:
 	$(info **************** house keeping ********************)
 	rm -rf $(BIN)
