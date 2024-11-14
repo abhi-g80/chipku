@@ -4,8 +4,8 @@ import (
 	"embed"
 	"fmt"
 	"html"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -108,7 +108,7 @@ func pastePostHandler(c echo.Context) error {
 }
 
 func pastePutHandler(c echo.Context) error {
-	value, err := ioutil.ReadAll(c.Request().Body)
+	value, err := io.ReadAll(c.Request().Body)
 	if err != nil {
 		return fmt.Errorf("while reading body: %v", err)
 	}
