@@ -25,39 +25,39 @@ fmt:
 
 lint:
 	$(info **************** running lint tools ***************)
-	golangci-lint run -v
+	@golangci-lint run -v
 
 richtest: install_deps
 	$(info **************** running tests - rich ***********)
-	richgo test -v ./...
+	@richgo test -v ./...
 
 test: install_deps
 	$(info **************** running tests ********************)
-	go test -v ./...
+	@go test -v ./...
 
 install_deps:
 	$(info **************** downloading dependencies *********)
-	go get -v ./...
+	@go get -v ./...
 
 build: clean
 	$(info **************** building binaries ****************)
-	mkdir $(BUILD)
-	go build -v -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)
+	@mkdir $(BUILD)
+	@go build -v -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)
 
 build-race: clean
 	$(info **************** building binaries ****************)
-	mkdir $(BUILD)
-	go build -v -race -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)-race
+	@mkdir $(BUILD)
+	@go build -v -race -ldflags=$(LDFLAGS) -o $(BUILD)/$(BINARY)-race
 
 clean:
 	$(info **************** house keeping ********************)
-	rm -rf $(BIN)
-	rm -rf $(BUILD)
+	@rm -rf $(BIN)
+	@rm -rf $(BUILD)
 
 up:
 	$(info **************** docker build + up ****************)
-	docker-compose up --build --remove-orphans --detach
+	@docker-compose up --build --remove-orphans --detach
 
 run:
 	$(info **************** run  *****************************)
-	go run . serve
+	@go run . serve

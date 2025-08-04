@@ -15,6 +15,26 @@ func TestRandStringBytes(t *testing.T) {
 	}
 }
 
+func BenchmarkRandStringBytes(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		RandStringBytes(50)
+	}
+}
+
+func BenchmarkEnrichWithHTMLTags(b *testing.B) {
+	var lang string = "cpp"
+	var codedata string = `
+    #include <iostream>
+    int main(int argc, char *argv[]) {
+        std::cout << "Hello Dev" << std::endl;
+        return 0;
+    }
+    `
+	for i := 0; i < b.N; i++ {
+		enrichWithHTMLTags(codedata, lang)
+	}
+}
+
 func TestEnrichWithHtmlTags(t *testing.T) {
 	var lang string = "lol"
 	var codedata string = "test1"
